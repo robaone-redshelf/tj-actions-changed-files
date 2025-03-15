@@ -15,9 +15,21 @@ import {Inputs} from './inputs'
 
 const MINIMUM_GIT_VERSION = '2.18.0'
 
+/**
+ * Validates the arguments provided for a Git fetch operation.
+ *
+ * This function ensures that none of the arguments contain forbidden flags such as '--upload-pack',
+ * detecting potential command injection attempts. The check is case insensitive and verifies partial matches.
+ *
+ * @param args - An array of strings representing Git fetch arguments.
+ * @returns `true` if the arguments are valid, `false` otherwise.
+ */
 const validateGitFetchArgs = (args: string[]): boolean => {
   const forbiddenArgs = ['--upload-pack'];
-  return !args.some(arg => forbiddenArgs.includes(arg));
+  return !args.some(arg => {
+    const lowerArg = arg.toLowerCase();
+    return forbiddenArgs.some(forbidden => lowerArg.includes(forbidden.toLowerCase()));
+  });
 }
 
 export const isWindows = (): boolean => {
