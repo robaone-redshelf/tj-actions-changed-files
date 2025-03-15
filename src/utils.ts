@@ -15,6 +15,11 @@ import {Inputs} from './inputs'
 
 const MINIMUM_GIT_VERSION = '2.18.0'
 
+const validateGitFetchArgs = (args: string[]): boolean => {
+  const forbiddenArgs = ['--upload-pack'];
+  return !args.some(arg => forbiddenArgs.includes(arg));
+}
+
 export const isWindows = (): boolean => {
   return process.platform === 'win32'
 }
@@ -297,6 +302,9 @@ export const gitFetch = async ({
   args: string[]
   cwd: string
 }): Promise<number> => {
+  if (!validateGitFetchArgs(args)) {
+    throw new Error('Invalid arguments for git fetch');
+  }
   const {exitCode} = await exec.getExecOutput('git', ['fetch', '-q', ...args], {
     cwd,
     ignoreReturnCode: true,
